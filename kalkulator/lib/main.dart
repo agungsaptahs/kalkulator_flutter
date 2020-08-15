@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:math_expressions/math_expressions.dart';
 
 void main() {
   runApp(Kalkulator());
@@ -23,12 +24,57 @@ class _MyKalkulatorState extends State<MyKalkulator> {
 
   String equation = "0";
   String result = "0";
-  String equationFontSize = "38";
-  String resultFontSize = "48";
+  String expression = "";
+  double equationFontSize = 38;
+  double resultFontSize = 48;
 
 
   buttonPressed(buttonText){
+    setState(() {
+      if(buttonText=="C"){
+        equation = "0";
+        result = "0";
+        equationFontSize = 38;
+        resultFontSize = 48;
+      }
 
+      else if(buttonText=="⌫"){
+        equationFontSize = 48;
+        resultFontSize = 38;
+        equation = equation.substring(0, equation.length - 1);
+        if(equation ==""){
+            equation = "0";
+          }
+      }
+
+      else if(buttonText=="="){
+        equationFontSize = 38;
+        resultFontSize = 48;
+        expression = equation;
+        expression = expression.replaceAll('×', '*');
+        expression = expression.replaceAll('÷', '/');
+
+        try{
+          Parser p =  Parser();
+          Expression exp = p.parse(expression);
+          ContextModel cm  = ContextModel();
+          result = '${exp.evaluate(EvaluationType.REAL, cm)}';
+        }catch(e){
+          result = "E";
+        }
+      }
+
+      else {
+        equationFontSize = 48;
+        resultFontSize = 38;
+        if(equation=="0"){
+          equation = buttonText;
+        }else{
+          equation = equation + buttonText;
+        }
+      }
+
+    });
   }
 
   Widget buildButton( String buttonText, double buttonHeight, Color buttonColor){
@@ -67,12 +113,12 @@ class _MyKalkulatorState extends State<MyKalkulator> {
           Container(
             alignment: Alignment.centerRight,
             padding: EdgeInsets.fromLTRB(10, 20, 10, 0),
-            child: Text("0", style: TextStyle(fontSize: 38.0),),
+            child: Text(equation, style: TextStyle(fontSize: equationFontSize),),
           ),
           Container(
             alignment: Alignment.centerRight,
             padding: EdgeInsets.fromLTRB(10, 30, 10, 0),
-            child: Text("0", style: TextStyle(fontSize: 48.0),),
+            child: Text(result, style: TextStyle(fontSize: resultFontSize),),
           ),
           Expanded(
               child: Divider()),
